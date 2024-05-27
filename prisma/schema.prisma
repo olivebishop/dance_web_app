@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator zod {
+  provider              = "zod-prisma"
+  output                = "./zod" 
+  relationModel         = true 
+  modelCase             = "camelCase" 
+  modelSuffix           = "Schema" 
+  useDecimalJs          = true 
+  prismaJsonNullability = true 
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id             String    @id
+  email          String    @unique
+  hashedPassword String
+  name           String?
+  sessions       Session[]
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+model Agent {
+  id    String @id @default(cuid())
+  name String
+  idNumber String
+  phoneNumber String
+  userId String
+  @@index([idNumber])
+  @@index([userId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Transaction {
+  id    String @id @default(cuid())
+  agentId String
+  amountWithdrawal Int
+  amountDeposited String
+  userId String
+  @@index([agentId])
+  @@index([userId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
